@@ -14,7 +14,7 @@ URIs are string identifiers for objects inside the _msg_ service. They generally
 
 ```
 {
-	"id": "msg:topic:uuid()"
+	"id": "msg:queue:uuid()"
 	"tags": [
 		{"key": "Name", "value": "Value"},
 		...
@@ -77,7 +77,6 @@ DescribeQueues fetches a list of Queues and returns them with their ids and tags
 Query Parameters | Description
 ---------------- | ----------------------
 filter.tag:key   | Filters for queues having _key_ as a tag with the given value as the value
-
 
 Response Fields  | Type    | Description
 ---------------- | ------- | ---------------
@@ -183,6 +182,10 @@ When the specified `queue` cannot be found, an `ErrorMessage` and a `404` is ret
 ### Internal Server Error
 
 If an unexpected error occurs, an `ErrorMessage` with the text "Internal Server Error" and a `500` status code is returned.
+
+## Authorization
+
+Authorization is simply handled via htbasic auth as defined in the HTTP protocol.
 
 ## Permissions
 
