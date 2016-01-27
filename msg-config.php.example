@@ -13,6 +13,8 @@ function config_pdo() {
     return $pdo;
 }
 
+# Users
+# php -r 'echo password_hash("<password>", PASSWORD_DEFAULT) ."\n";'
 $keyManager->addBcryptCredentials("username", "bcrypted-password");
 $keyManager->addBcryptCredentials("username2", "bcrypted-password");
 
