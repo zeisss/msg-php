@@ -14,6 +14,10 @@
  			cursor:pointer;
  		}
 
+ 		#alert {
+ 			border: 1px red border;
+ 		}
+
  		</style>
 		<script>
 		var Msg = {
@@ -33,8 +37,8 @@
 
 				var index = 1;
 				jQuery.each(tags, function (key, value) {
-					url += "&tags."  + index + ".key=" + key;
-					url += "&tags." + index + ".value=" + value;
+					url += "&tags."  + encodeURIComponenta(index) + ".key=" + encodeURIComponenta(key);
+					url += "&tags." + encodeURIComponenta(index) + ".value=" + encodeURIComponenta(value);
 					index++;
 				});
 
@@ -44,6 +48,16 @@
 				return jQuery.post(this.Config.endpoint + "?action=DeleteQueue&queue=" + queueId, "");
 			}
 		}
+
+		var AlertBar = {
+			el: undefined,
+			init: function() {
+				this.el = jQuery("#alert");
+			},
+			showText: function(text) {
+				this.el.text(text);
+			}
+		};
 
 		var QueuesOverviewComponent = {
 			el: jQuery("#queues"),
@@ -130,7 +144,8 @@
 	</head>
 	<body>
 		<h1>Queues</h1>
-
+		<div id="alert">
+		</div>
 		<div id="create_queue">
 			<fieldset>
 				<span>
