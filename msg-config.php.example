@@ -1,0 +1,22 @@
+<?php
+
+function config_pdo() {
+	return # Database
+	$pdo = new PDO(
+		'mysql:dbname=<db>;host=<ip>', 
+		'<username>', '<password>',
+      	array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'')
+    );
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_STRINGIFY_FETCHES, false);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+    return $pdo;
+}
+
+$keyManager->addBcryptCredentials("username", "bcrypted-password");
+$keyManager->addBcryptCredentials("username2", "bcrypted-password");
+
+# Policies
+$accessManager->newPolicy()
+	->description("Everyone has access to everything")
+	->permission('mfs::*');
