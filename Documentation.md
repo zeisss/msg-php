@@ -133,6 +133,15 @@ Response Fields  | Type    | Description
 id               | URI     | The URI of the queue
 messages         | int     | Number of messages in the queue
 
+### PurgeQueue
+
+PurgeQueue removes all messages currently stored in the queue.
+
+Query Parameters | Description
+---------------- | ----------------------
+queue            | The URI of the queue to fetch the message from
+
+
 ## Common Errors
 
 ### Invalid Method

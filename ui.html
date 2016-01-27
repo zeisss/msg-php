@@ -10,7 +10,7 @@
  			border: 1px black solid;
  		}
 
- 		.delete {
+		.purge, .delete {
  			cursor:pointer;
  		}
 
@@ -37,8 +37,8 @@
 
 				var index = 1;
 				jQuery.each(tags, function (key, value) {
-					url += "&tags."  + encodeURIComponenta(index) + ".key=" + encodeURIComponenta(key);
-					url += "&tags." + encodeURIComponenta(index) + ".value=" + encodeURIComponenta(value);
+					url += "&tags."  + encodeURIComponent(index) + ".key=" + encodeURIComponent(key);
+					url += "&tags." + encodeURIComponent(index) + ".value=" + encodeURIComponent(value);
 					index++;
 				});
 
@@ -46,12 +46,15 @@
 			},
 			DeleteQueue: function(queueId) {
 				return jQuery.post(this.Config.endpoint + "?action=DeleteQueue&queue=" + queueId, "");
+			},
+			PurgeQueue: function(queueId) {
+				return jQuery.post(this.Config.endpoint + "?action=PurgeQueue&queue=" + queueId, "");
 			}
 		}
 
 		var AlertBar = {
 			el: undefined,
-			init: function() {
+			init: function() {
 				this.el = jQuery("#alert");
 			},
 			showText: function(text) {
@@ -74,12 +77,19 @@
 							"<td>" + tagText.substring(2) + "</td>" + 
 							"<td class=state></td>" +
 							"<td class=delete>[ Delete ]</td>" + 
+							"<td class=purge>[ Purge ]</td>" +
 							"</tr>");
 						el.appendTo(that.el);
 
 						Msg.DescribeQueueStatus(queue.id).done(function(queueStatus) {
 							var status = jQuery(".state", el);
 							status.text(queueStatus.messages);
+						});
+
+						jQuery(".purge", el).on("click", function() {
+							Msg.PurgeQueue(queue.id).then(function() {
+								QueuesOverviewComponent.render();
+							});
 						});
 
 						jQuery(".delete", el).on("click", function() {
