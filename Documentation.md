@@ -1,10 +1,8 @@
 # msg.php
 
-A very simple http based message queue inspired by Amazons SNS.
-
 ## Welcome
 
-
+A very simple http based message queue inspired by Amazons SNS.
 
 ## DataStructures
 
