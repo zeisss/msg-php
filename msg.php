@@ -157,10 +157,7 @@ class QueueStorage {
 		$stmt = $this->pdo->prepare('INSERT INTO `msg_queues` (id) VALUES (?)');
     	$stmt->execute(array($id));
 		
-		$stmt = $this->pdo->prepare('INSERT INTO `msg_queue_tags` (queue_id, tag, value) VALUES (?,?,?)');
-    	foreach($tags as $tag) {
-    		$stmt->execute([$id, $tag['key'], $tag['value']]);
-    	}
+		$this->insertTags($id, $tags);
     	return $id;
 	}
 
@@ -179,6 +176,30 @@ class QueueStorage {
 		$queues = $this->fromResultSet($result);
 		return $queues[0];
 	}
+
+	public function getQueuesByTags($tags) {
+		$sql = 'SELECT q.id, t.tag, t.value FROM `msg_queues` q LEFT JOIN `msg_queue_tags` t ON q.id = t.queue_id WHERE q.id IN (SELECT DISTINCT queue_id FROM `msg_queue_tags` WHERE ';
+		$args = [];
+
+		$first = false;
+		foreach($tags as $key => $value) {
+			$args[] = $key;
+			$args[] = $value;
+
+			$sql = $sql . "(tag = ? AND value = ?)";
+
+			if (!$first) {
+				$sql . ' AND ';
+			}
+			$first = false;
+		}
+		$sql .= ")";
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute($args);
+		$result = $stmt->fetchAll();
+
+		return $this->fromResultSet($result);
+	}	
 
 	private function fromResultSet($resultSet) {
 		$queues = [];
@@ -203,8 +224,19 @@ class QueueStorage {
 		if (!empty($lastQueue)) {
 			$queues[] = $lastQueue;
 		}
-		
 		return $queues;
+	}
+
+	public function deleteTags($id) {
+		$stmt = $this->pdo->prepare('DELETE FROM `msg_queue_tags` WHERE queue_id = ?');
+		$stmt->execute([$id]);
+	}
+
+	public function insertTags($id, $tags) {
+		$stmt = $this->pdo->prepare('INSERT INTO `msg_queue_tags` (queue_id, tag, value) VALUES (?,?,?)');
+		foreach($tags as $tag) {
+			$stmt->execute([$id, $tag['key'], $tag['value']]);
+		}
 	}
 
 	public function deleteQueue($queue) {
@@ -337,6 +369,8 @@ class Server {
 							$this->handleDescribeQueueStatus($queue);
 						case "PurgeQueue":
 							$this->handlePurgeQueue($queue);
+						case "UpdateQueueTags":
+							$this->handleUpdateQueueTags($queue);
 						default:
 							$this->sendMessage("Invalid action",
 								"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
@@ -349,9 +383,21 @@ class Server {
 	}
 
 	private function handleDescribeQueues() {
-		# TODO: implement filters by tags
+		$tags = [];
+		foreach($this->params as $key => $value) {
+			if (strpos($key, "filter_tag:") === 0) {
+				$key = substr($key, strlen("filter_tag:"));
 
-		$queues = $this->queues->listQueues();
+				$tags[$key] = $value;
+			}
+		}
+
+		if (empty($tags)) {
+			// if no tags is given, just list everything
+			$queues = $this->queues->listQueues();
+		} else {
+			$queues = $this->queues->getQueuesByTags($tags);
+		}
 
 		$this->jsonPrint(array(
 			'queues' => $queues
@@ -359,17 +405,7 @@ class Server {
 	}
 
 	private function handleCreateQueue() {
-		// construct tags from query parameters ?tag.1.key=name&tag.1.value=demo&tag.2.
-		$tags = [];
-		for ($i = 1;$i < 20; $i++) {
-			if (!isset($this->params["tags_{$i}_key"])) {
-				break;
-			}
-			$key = $this->params["tags_{$i}_key"];
-			$value = $this->params["tags_{$i}_value"];
-
-			$tags[] = array('key' => $key, 'value' => $value);
-		}
+		$tags = $this->parseParamsTags();
 		$id = $this->queues->createQueue($tags);
 		
 		$this->sendQueueCreatedMessage(array(
@@ -422,6 +458,34 @@ class Server {
 		$this->messages->purge($queue['id']);
 
 		$this->sendPurgeSuccessMessage($queue['id']);
+	}
+
+	private function handleUpdateQueueTags($queue) {
+		$tags = $this->parseParamsTags();
+		$this->queues->deleteTags($queue['id']);
+		$this->queues->insertTags($queue['id'], $tags);
+		$this->sendQueueUpdatedMessage($queue['id']);
+	}
+
+	private function parseParamsTags() {
+		// construct tags from query parameters ?tag.1.key=name&tag.1.value=demo&tag.2.
+		$tags = [];
+		for ($i = 1;$i < 20; $i++) {
+			if (!isset($this->params["tags_{$i}_key"])) {
+				break;
+			}
+			$key = $this->params["tags_{$i}_key"];
+			$value = $this->params["tags_{$i}_value"];
+
+			$tags[] = array('key' => $key, 'value' => $value);
+		}
+		return $tags;
+	}
+
+	private function sendQueueUpdatedMessage($queueId) {
+		$this->jsonPrint(array(
+			'queue' => $queueId
+		));
 	}
 
 	private function sendPurgeSuccessMessage($queueId) {

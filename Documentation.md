@@ -74,12 +74,14 @@ queue            | Queue | The queue that was created
 
 DescribeQueues fetches a list of Queues and returns them with their ids and tags to the client.
 
-TODO: Filters
+Query Parameters | Description
+---------------- | ----------------------
+filter.tag:key   | Filters for queues having _key_ as a tag with the given value as the value
+
 
 Response Fields  | Type    | Description
 ---------------- | ------- | ---------------
-queue            | []Queue | The queues that match the given filters
-
+queues           | []Queue | The queues that match the given filters
 
 ### DeleteQueue
 
@@ -93,6 +95,43 @@ Response Fields  | Type  | Description
 ---------------- | ----- | ---------------
 queue            | Queue | The queue that was deleted
 
+### DescribeQueueStatus
+
+Query Parameters | Description
+---------------- | ----------------------
+queue            | The URI of the queue to fetch the message from
+
+Response Fields  | Type    | Description
+---------------- | ------- | ---------------
+id               | URI     | The URI of the queue
+messages         | int     | Number of messages in the queue
+
+
+### UpdateQueueTags
+
+Updates the tags for the specified queue.
+
+Query Parameters | Description
+---------------- | ----------------------
+queue            | The URI of the queue to fetch the message from
+tags.N.key       | The key for the tag
+tags.N.value     | The value of the tag
+
+Response Fields  | Type    | Description
+---------------- | ------- | ---------------
+queues            | []Queue | The queues that match the given filters
+
+### PurgeQueue
+
+PurgeQueue removes all messages currently stored in the queue.
+
+Query Parameters | Description
+---------------- | ----------------------
+queue            | The URI of the queue to fetch the message from
+
+Response Fields  | Type    | Description
+---------------- | ------- | ---------------
+queue            | []Queue | The queue that was purged
 
 ### PushMessage
 
@@ -121,26 +160,6 @@ Response Fields  | Type    | Description
 ---------------- | ------- | ---------------
 queue            | URI     | The URI of the queue
 message          | Message | The messages that was dequeued
-
-### DescribeQueueStatus
-
-Query Parameters | Description
----------------- | ----------------------
-queue            | The URI of the queue to fetch the message from
-
-Response Fields  | Type    | Description
----------------- | ------- | ---------------
-id               | URI     | The URI of the queue
-messages         | int     | Number of messages in the queue
-
-### PurgeQueue
-
-PurgeQueue removes all messages currently stored in the queue.
-
-Query Parameters | Description
----------------- | ----------------------
-queue            | The URI of the queue to fetch the message from
-
 
 ## Common Errors
 
