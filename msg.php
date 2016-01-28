@@ -284,7 +284,12 @@ class MessageStorage {
 		if (!isset($rows[0])) {
 			return NULL;
 		}
-		return $rows[0];
+		return array(
+			'id' => $rows[0]['id'],
+			'content_type' => $rows[0]['content_type'],
+			'body' => $rows[0]['body'],
+			'created_at' => $rows[0]['created_at']
+		);
 	}
 
 	public function getMessageCount($queueId) {
