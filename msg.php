@@ -303,7 +303,7 @@ class MessageStorage {
 	public function purge($queueId) {
 		$sql = 'DELETE FROM `msg_messages` WHERE queue_id = ?';
 		$stmt = $this->pdo->prepare($sql);
-		$stmt->execute();
+		$stmt->execute(array($queueId));
 	}
 }
 
