@@ -118,7 +118,7 @@ tags.N.value     | The value of the tag
 
 Response Fields  | Type    | Description
 ---------------- | ------- | ---------------
-queues            | []Queue | The queues that match the given filters
+queue            | Queue   | The queue that got updated
 
 ### PurgeQueue
 
