@@ -6,7 +6,7 @@ build:
             name: copy files to pkg/
             code: |
                 mkdir -p $WERCKER_OUTPUT_DIR/pkg/msg-php
-                cp *.php *.md $WERCKER_OUTPUT_DIR/pkg/msg-php/
+                cp *.php *.example *.md $WERCKER_OUTPUT_DIR/pkg/msg-php/
 
         - yudai/targz@0.2.1:
           input: $WERCKER_OUTPUT_DIR/pkg
