@@ -1,0 +1,39 @@
+box: php
+
+build:
+    steps:
+        - script:
+            name: copy files to pkg/
+            code: |
+                mkdir -p $WERCKER_OUTPUT_DIR/pkg/msg-php
+                cp *.php *.md $WERCKER_OUTPUT_DIR/pkg/msg-php/
+
+        - yudai/targz@0.2.1:
+          input: $WERCKER_OUTPUT_DIR/pkg
+          output: $WERCKER_OUTPUT_DIR/dist
+        - script:
+           name: show hash sums
+           code: |
+               cat $WERCKER_OUTPUT_DIR/dist/SHASUMS
+
+deploy:
+    steps:
+        - script:
+            name: Upload Build Artifact 
+            code: |
+                VERSION=latest
+                NAME=msg-php
+                file="./dist/${NAME}.tar.gz"
+                path="/artifacts/${NAME}/${VERSION}/${NAME}.tar.gz"
+                basecurl="curl -sS -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
+                acl=private
+                ${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' -i
+                echo $?
+
+        - script:
+            name: Deploy artifact
+            code: |
+                site_name=msg
+                desired_version=latest
+                curl -H"Authorization: bearer ${DEPLOY_TOKEN}" http://apps.moinz.de/deploy.php --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" -i
+                echo $?
