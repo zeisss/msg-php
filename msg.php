@@ -38,7 +38,7 @@ class HTTPAPIServer {
 	private $accessManager;
 	private $service;
 
-	function Server($auth, $accessManager, $service) {
+	function HTTPAPIServer($auth, $accessManager, $service) {
 		$this->auth = $auth;
 		$this->accessManager = $accessManager;
 		$this->service = $service;

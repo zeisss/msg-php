@@ -82,7 +82,6 @@ function TestCreateQueueWithTags() {
 	assertEquals($tags, $queue['tags']);
 }
 
-
 function TestDeleteQueueReturnsTrueForExistingQueue() {
 	$msgs = newTestMessagingSystem();
 	$queueId = givenExistingQueue($msgs);
