@@ -21,6 +21,12 @@ function argNotEmpty($value, $name) {
 	}
 }
 
+function argIsID($value, $type, $name) {
+	if (empty($value) || strpos($value, "msg:$type:") !== 0) {
+		throw new IllegalArgumentException("Expected $name to be of format 'msg:<type>:<id>', but got '$value'");
+	}
+}
+
 class MessagingService {
 	private $queues;
 	private $messages;
@@ -49,7 +55,7 @@ class MessagingService {
 	}
 
 	public function deleteQueue($deleteQueueReq) {
-		argNotEmpty($deleteQueueReq['queue_id'], "queue_id");
+		argIsID($deleteQueueReq['queue_id'], "queue", "queue_id");
 
 		$queue = $this->queues->getQueueById($deleteQueueReq['queue_id']);
 		if ($queue == NULL) {
@@ -72,7 +78,7 @@ class MessagingService {
 	}
 
 	public function pushMessage($request) {
-		argNotNull($request['queue_id'], 'queue_id');
+		argIsID($request['queue_id'], "queue", 'queue_id');
 		argNotEmpty($request['content_type'], 'content_type');
 		argNotEmpty($request['body'], 'body');
 		$queue = $this->queues->getQueueById($request['queue_id']);
@@ -89,7 +95,7 @@ class MessagingService {
 	}
 
 	public function describeQueueStatus($request) {
-		argNotNull($request['queue_id'], 'queue_id');
+		argIsID($request['queue_id'], "queue", 'queue_id');
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
@@ -104,7 +110,7 @@ class MessagingService {
 	}
 
 	public function popMessage($request) {
-		argNotEmpty($request['queue_id'], 'queue_id');
+		argIsID($request['queue_id'], "queue", 'queue_id');
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
@@ -125,7 +131,7 @@ class MessagingService {
 	}
 
 	public function purgeQueue($request) {
-		argNotEmpty($request['queue_id'], 'queue_id');
+		argIsID($request['queue_id'], "queue", 'queue_id');
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
@@ -138,7 +144,7 @@ class MessagingService {
 	}
 
 	public function updateQueueTags($request) {
-		argNotEmpty($request['queue_id'], 'queue_id');
+		argIsID($request['queue_id'], "queue", 'queue_id');
 		argIsArray($request['tags'], 'tags');
 
 		$queue = $this->queues->getQueueById($request['queue_id']);

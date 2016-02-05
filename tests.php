@@ -226,7 +226,7 @@ function TestUpdateAddsTags() {
 function TestQueueNotFoundException() {
 	$msgs = newTestMessagingSystem();
 	try {
-		$msgs->describeQueueStatus(array('queue_id' => 'foo-bar'));
+		$msgs->describeQueueStatus(array('queue_id' => 'msg:queue:0123456789'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -235,7 +235,7 @@ function TestQueueNotFoundException() {
 	}
 
 	try {
-		$msgs->updateQueueTags(array('queue_id' => 'foo-bar', 'tags' => []));
+		$msgs->updateQueueTags(array('queue_id' => 'msg:queue:0123456789', 'tags' => []));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -244,7 +244,7 @@ function TestQueueNotFoundException() {
 	}
 
 	try {
-		$msgs->popMessage(array('queue_id' => 'foo-bar'));
+		$msgs->popMessage(array('queue_id' => 'msg:queue:0123456789'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -253,7 +253,7 @@ function TestQueueNotFoundException() {
 	}
 
 	try {
-		$msgs->pushMessage(array('queue_id' => 'foo-bar', 'body' => 'bla', 'content_type' => 'text/plain'));
+		$msgs->pushMessage(array('queue_id' => 'msg:queue:0123456789', 'body' => 'bla', 'content_type' => 'text/plain'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -262,7 +262,7 @@ function TestQueueNotFoundException() {
 	}
 
 	try {
-		$msgs->purgeQueue(array('queue_id' => 'foo-bar'));
+		$msgs->purgeQueue(array('queue_id' => 'msg:queue:0123456789'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -271,7 +271,7 @@ function TestQueueNotFoundException() {
 	}
 
 	try {
-		$msgs->deleteQueue(array('queue_id' => 'foo-bar'));
+		$msgs->deleteQueue(array('queue_id' => 'msg:queue:0123456789'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 
@@ -298,6 +298,8 @@ function TestIllegalArgumentException() {
 	} catch (Exception $e) {
 		assert(false, "Unexpected Exception: $e");
 	}
+
+	// ----------------
 
 	try {
 		$msgs->updateQueueTags(NULL);
@@ -326,7 +328,16 @@ function TestIllegalArgumentException() {
 		assert(false, "Unexpected Exception: $e");
 	}
 
-	// -----------------------------------------------
+	try {
+		$msgs->updateQueueTags(array('queue_id' => 'msg:queue:1234567890'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	// ----------------
 	try {
 		$msgs->popMessage(NULL);
 		assert(false, "Expected an Exception, got nothing");
@@ -345,7 +356,8 @@ function TestIllegalArgumentException() {
 		assert(false, "Unexpected Exception: $e");
 	}
 
-	// ------------------------------------------------------------------
+	// ----------------
+
 	try {
 		$msgs->pushMessage(NULL);
 		assert(false, "Expected an Exception, got nothing");
@@ -362,8 +374,17 @@ function TestIllegalArgumentException() {
 	} catch (Exception $e) {
 		assert(false, "Unexpected Exception: $e");
 	}
+
 	try {
-		$msgs->pushMessage(array('queue_id' => 'foo-bar', ));
+		$msgs->pushMessage(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->pushMessage(array('queue_id' => 'msg:queue:1234567890'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (IllegalArgumentException $e) {
 
