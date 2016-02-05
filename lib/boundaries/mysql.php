@@ -10,7 +10,6 @@ class MysqlQueueStorage implements QueueStorage {
 	}
 
 	public function createQueue($id, $tags) {
-		$id = $this->newid();
 		$stmt = $this->pdo->prepare('INSERT INTO `msg_queues` (id) VALUES (?)');
     	$stmt->execute(array($id));
 		
@@ -115,12 +114,7 @@ class MysqlMessageStorage implements MessageStorage {
 	public function MysqlMessageStorage($pdo) {
 		$this->pdo = $pdo;
 	}
-	private function newid() {
-		$bytes = openssl_random_pseudo_bytes(16);
-		return 'msg:message:' . bin2hex($bytes);
-	}
-
-	public function createMessage($messageId, $queueId, $contentType, $message) {
+	public function createMessage($id, $queueId, $contentType, $message) {
 		$sql = 'INSERT INTO `msg_messages` (id, queue_id, content_type, body) VALUES (?,?, ?,?)';
 		$stmt = $this->pdo->prepare($sql);
 		$stmt->execute(array($id, $queueId, $contentType, $message));
