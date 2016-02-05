@@ -1,6 +1,7 @@
 <?php
 
 require_once __DIR__ . '/boundaries.php';
+require_once __DIR__ . '/exceptions.php';
 
 function argIsArray($value, $name) {
 	if (gettype($value) != "array") {
@@ -50,14 +51,15 @@ class MessagingService {
 	}
 
 	public function deleteQueue($deleteQueueReq) {
-		argNotEmpty($deleteQueueReq['id'], "id");
+		argNotEmpty($deleteQueueReq['queue_id'], "queue_id");
 
-		$queue = $this->queues->getQueueById($deleteQueueReq['id']);
+		$queue = $this->queues->getQueueById($deleteQueueReq['queue_id']);
 		if ($queue == NULL) {
-			return FALSE;
+			throw new QueueNotFoundException();
 		}
-		$found = $this->queues->deleteQueue($deleteQueueReq['id']);
-		return $found;
+
+		$this->queues->deleteQueue($deleteQueueReq['queue_id']);
+		return array();
 	}
 
 	public function describeQueues($request) {
@@ -76,7 +78,7 @@ class MessagingService {
 		argNotEmpty($request['body'], 'body');
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
-			throw new Exception('Queue not found: ' . $request['queue_id']);
+			throw new QueueNotFoundException();
 		}
 
 		$id = $this->newid('message');
@@ -92,7 +94,7 @@ class MessagingService {
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
-			throw new Exception('Queue not found: ' . $request['queue_id']);
+			throw new QueueNotFoundException();
 		}
 
 		$messageCount = $this->messages->getMessageCount($request['queue_id']);
@@ -107,7 +109,7 @@ class MessagingService {
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
-			throw new Exception('Queue not found: ' . $request['queue_id']);
+			throw new QueueNotFoundException();
 		}
 
 		$message = $this->messages->getNextMessage($queue['id']);
@@ -128,7 +130,7 @@ class MessagingService {
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
-			throw new Exception('Queue not found: ' . $request['queue_id']);
+			throw new QueueNotFoundException();
 		}
 
 		$this->messages->purge($queue['id']);
@@ -142,9 +144,11 @@ class MessagingService {
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
 		if (NULL == $queue) {
-			throw new Exception('Queue not found: ' . $request['queue_id']);
+			throw new QueueNotFoundException();
 		}
 		$this->queues->deleteTags($queue['id']);
 		$this->queues->insertTags($queue['id'], $request['tags']);
+
+		return array(); # we always return sthg
 	}
 }

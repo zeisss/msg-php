@@ -86,18 +86,8 @@ function TestDeleteQueueReturnsTrueForExistingQueue() {
 	$msgs = newTestMessagingSystem();
 	$queueId = givenExistingQueue($msgs);
 
-	$found = $msgs->deleteQueue(array('id' => $queueId));
-	assert(gettype($found) == 'boolean', 'Expected deleteQueue to return boolean');
-	assert($found, 'Expected deleteQueue to return true');
-}
-
-
-function TestDeleteQueueReturnsFalseForUnknownQueue() {
-	$msgs = newTestMessagingSystem();
-	
-	$found = $msgs->deleteQueue(array('id' => 'this-does-not-exist'));
-	assert(gettype($found) == 'boolean', 'Expected deleteQueue to return boolean');
-	assert(!$found, 'Expected deleteQueue to return false');
+	$response = $msgs->deleteQueue(array('queue_id' => $queueId));
+	assertEmpty($response);
 }
 
 function TestDescribeByTags() {
@@ -220,8 +210,66 @@ function TestUpdateAddsTags() {
 	assert($queues[0]['tags'] == $tags, "Expected queue to have tags: $tags");
 }
 
+function TestQueueNotFoundException() {
+	$msgs = newTestMessagingSystem();
+	try {
+		$msgs->describeQueueDetails(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->updateQueueTags(array('queue_id' => 'foo-bar', 'tags' => []));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->popMessage(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->pushMessage(array('queue_id' => 'foo-bar', 'body' => 'bla', 'content_type' => 'text/plain'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->purgeQueue(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->deleteQueue(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (QueueNotFoundException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+}
 
 function run_tests() {
+	TestQueueNotFoundException();
+
 	TestCreateQueueInvalidArgs();
 	TestCreateQueue();
 	TestCreateQueueWithTags();
@@ -229,7 +277,6 @@ function run_tests() {
 	TestDescribeWithoutTags();
 
 	TestDeleteQueueReturnsTrueForExistingQueue();
-	TestDeleteQueueReturnsFalseForUnknownQueue();
 
 	TestDescribeByTags();
 	TestMessagingCycle();

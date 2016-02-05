@@ -100,6 +100,8 @@ class HTTPAPIServer {
 								"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
 					}
 			}
+		} catch (QueueNotFoundException $e) {
+			$this->sendQueueNotFound();
 		} catch(Exception $e) {
 			$this->sendMessage("Internal Server Error", 
 						$e->getMessage(), true, 500);
@@ -134,12 +136,8 @@ class HTTPAPIServer {
 	}
 
 	private function handleDeleteQueue() {
-		$found = $this->service->deleteQueue(array('id' => $params['queue']));
-		if ($found) {
-			$this->sendQueueDeletedMessage($params['queue']);
-		} else {
-			$this->sendQueueNotFound();
-		}	
+		$found = $this->service->deleteQueue(array('queue_id' => $params['queue']));
+		$this->sendQueueDeletedMessage($params['queue']);
 	}
 
 	private function handleDescribeQueueStatus() {
