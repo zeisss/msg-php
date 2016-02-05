@@ -35,14 +35,12 @@ class KeyManager {
 
 class Server {
 	private $queues;
-	private $messages;
 	private $auth;
 	private $accessManager;
 	private $service;
 
-	function Server($queues, $messages, $auth, $accessManager, $service) {
+	function Server($queues, $auth, $accessManager, $service) {
 		$this->queues = $queues;
-		$this->messages = $messages;
 		$this->auth = $auth;
 		$this->accessManager = $accessManager;
 		$this->service = $service;
@@ -368,7 +366,7 @@ function handleRequest() {
 
 	list($queues, $messages, $auth, $accessManager) = config();
 	$service = new MessagingService($queues, $messages);
-	$server = new Server($queues, $messages, $auth, $accessManager, $service);
+	$server = new Server($queues, $auth, $accessManager, $service);
 	$server->handleRequest($host, $method, $path, $headers, $params);
 }
 
