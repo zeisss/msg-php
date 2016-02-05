@@ -367,7 +367,8 @@ function handleRequest() {
 	}
 
 	list($queues, $messages, $auth, $accessManager) = config();
-	$server = new Server($queues, $messages, $auth, $accessManager);
+	$service = new MessagingService($queues, $messages);
+	$server = new Server($queues, $messages, $auth, $accessManager, $service);
 	$server->handleRequest($host, $method, $path, $headers, $params);
 }
 
