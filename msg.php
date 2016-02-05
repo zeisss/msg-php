@@ -142,7 +142,7 @@ class HTTPAPIServer {
 
 	private function handleDescribeQueueStatus() {
 		$request = array('queue_id' => $params['queue']);
-		$response = $this->service->describeQueueDetails($request);
+		$response = $this->service->describeQueueStatus($request);
 		$this->jsonPrint(array(
 			'id' => $queueId,
 			'messages' => $response['message_count']

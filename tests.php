@@ -46,7 +46,7 @@ function givenPublishedMessage($service, $queueId) {
 	assertNotEmpty($result);
 
 
-	$details = $service->describeQueueDetails(array('queue_id' => $queueId));
+	$details = $service->describeQueueStatus(array('queue_id' => $queueId));
 	assert($details['message_count'] >= 0, "Expected message count to be at least 1");
 
 	return $result['id']; // message id
@@ -141,8 +141,8 @@ function TestMessagingCycle() {
 	assertNotNull($pushMessageResp);
 	assertNotEmpty($pushMessageResp['message_id']);
 
-	$details = $msgs->describeQueueDetails(array('queue_id' => $id));
-	assert($details['message_count'] == 1, "Expected message count to be 1");
+	$status = $msgs->describeQueueStatus(array('queue_id' => $id));
+	assert($status['message_count'] == 1, "Expected message count to be 1");
 
 	// Pop the message
 	$popMessageResponse = $msgs->popMessage(array('queue_id' => $id));
@@ -153,8 +153,8 @@ function TestMessagingCycle() {
 	assertNotEmpty($popMessageResponse['created_at']);
 
 	// Ensure the message is gone
-	$details = $msgs->describeQueueDetails(array('queue_id' => $id));
-	assert($details['message_count'] === 0, "Expected message count to be 0");
+	$status = $msgs->describeQueueStatus(array('queue_id' => $id));
+	assert($status['message_count'] === 0, "Expected message count to be 0");
 
 	// Pop another message
 	$popMessageResponse = $msgs->popMessage(array('queue_id' => $id));
@@ -169,8 +169,8 @@ function TestPurge() {
 	$response = $msgs->purgeQueue(array('queue_id' => $queueId));
 	assertNotNull($response);
 
-	$details = $msgs->describeQueueDetails(array('queue_id' => $queueId));
-	assert($details['message_count'] == 0, "Expected message count to be 0");
+	$status = $msgs->describeQueueStatus(array('queue_id' => $queueId));
+	assert($status['message_count'] == 0, "Expected message count to be 0");
 }
 
 function TestPushMessagesFailsWithWrongQueue() {
@@ -226,7 +226,7 @@ function TestUpdateAddsTags() {
 function TestQueueNotFoundException() {
 	$msgs = newTestMessagingSystem();
 	try {
-		$msgs->describeQueueDetails(array('queue_id' => 'foo-bar'));
+		$msgs->describeQueueStatus(array('queue_id' => 'foo-bar'));
 		assert(false, "Expected an Exception, got nothing");
 	} catch (QueueNotFoundException $e) {
 

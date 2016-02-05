@@ -90,7 +90,7 @@ class MessagingService {
 		);
 	}
 
-	public function describeQueueDetails($request) {
+	public function describeQueueStatus($request) {
 		argNotNull($request['queue_id'], 'queue_id');
 
 		$queue = $this->queues->getQueueById($request['queue_id']);
