@@ -1,8 +1,7 @@
 <?php
 
 require_once __DIR__ . '/lib/messaging/messaging.php';
-require_once __DIR__ . '/lib/boundaries/inmemory.php';
-
+require_once __DIR__ . '/lib/messaging/storage/inmemory.php';
 
 // Helpers
 function assertNotEmpty($value) {
