@@ -24,10 +24,11 @@ function assertEmpty($value) {
 }
 
 // Inits
-function newTestMessagingSystem() {
-	$queues = new RAMQueueStorage();
-	$messages = new RAMMEssageStorage();
-	return new MessagingService($queues, $messages);
+function newTestMessagingSystem($queues = NULL, $messages = NULL) {
+	return new MessagingService(
+		$queues === NULL ? new RAMQueueStorage() : $queues,
+		$messages === NULL ? new RAMMessageStorage() : $messages
+	);
 }
 
 function givenExistingQueue($service, $tags = []) {
@@ -88,6 +89,19 @@ function TestDeleteQueueReturnsTrueForExistingQueue() {
 
 	$response = $msgs->deleteQueue(array('queue_id' => $queueId));
 	assertEmpty($response);
+}
+
+function TestDeleteQueuePurgesMessages() {
+	$messages = new RAMMessageStorage();
+	$msgs = newTestMessagingSystem(NULL, $messages);
+
+	$queueId = givenExistingQueue($msgs);
+	$messageId = givenPublishedMessage($msgs, $queueId);
+
+	$msgs->deleteQueue(array('queue_id' => $queueId));
+
+	$messageCount = $messages->getMessageCount($queueId);
+	assert($messageCount == 0, "Expected message store to be purged on deleteQueue");
 }
 
 function TestDescribeByTags() {
@@ -285,6 +299,7 @@ function run_tests() {
 
 	TestUpdateRemovesTags();
 	TestUpdateAddsTags();
+	TestDeleteQueuePurgesMessages();
 }
 
 run_tests();

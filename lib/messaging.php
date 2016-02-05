@@ -59,6 +59,7 @@ class MessagingService {
 		}
 
 		$this->queues->deleteQueue($deleteQueueReq['queue_id']);
+		$this->messages->purge($deleteQueueReq['queue_id']);
 		return array();
 	}
 
