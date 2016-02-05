@@ -33,14 +33,12 @@ class KeyManager {
 	}
 }
 
-class Server {
-	private $queues;
+class HTTPAPIServer {
 	private $auth;
 	private $accessManager;
 	private $service;
 
-	function Server($queues, $auth, $accessManager, $service) {
-		$this->queues = $queues;
+	function Server($auth, $accessManager, $service) {
 		$this->auth = $auth;
 		$this->accessManager = $accessManager;
 		$this->service = $service;
@@ -84,24 +82,19 @@ class Server {
 				case "CreateQueue": 
 					$this->handleCreateQueue();
 				default:
-					$queue = $this->queues->getQueueById($authResource);
-					if (empty($queue)) {
-						$this->sendQueueNotFound();
-					}
-
 					switch ($action) {
 						case "PushMessage":
-							$this->handlePushMessage($queue);
+							$this->handlePushMessage();
 						case "PopMessage":
-							$this->handlePopMessage($queue);				
+							$this->handlePopMessage();				
 						case "DeleteQueue":
-							$this->handleDeleteQueue($queue);
+							$this->handleDeleteQueue();
 						case "DescribeQueueStatus":
-							$this->handleDescribeQueueStatus($queue);
+							$this->handleDescribeQueueStatus();
 						case "PurgeQueue":
-							$this->handlePurgeQueue($queue);
+							$this->handlePurgeQueue();
 						case "UpdateQueueTags":
-							$this->handleUpdateQueueTags($queue);
+							$this->handleUpdateQueueTags();
 						default:
 							$this->sendMessage("Invalid action",
 								"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
@@ -140,17 +133,17 @@ class Server {
 		$this->sendQueueCreatedMessage($queue);
 	}
 
-	private function handleDeleteQueue($queue) {
-		$found = $this->service->deleteQueue(array('id' => $queue['id']));
+	private function handleDeleteQueue() {
+		$found = $this->service->deleteQueue(array('id' => $params['queue']));
 		if ($found) {
-			$this->sendQueueDeletedMessage($queue);
+			$this->sendQueueDeletedMessage($params['queue']);
 		} else {
 			$this->sendQueueNotFound();
 		}	
 	}
 
-	private function handleDescribeQueueStatus($queue) {
-		$request = array('queue_id' => $queue['id']);
+	private function handleDescribeQueueStatus() {
+		$request = array('queue_id' => $params['queue']);
 		$response = $this->service->describeQueueDetails($request);
 		$this->jsonPrint(array(
 			'id' => $queueId,
@@ -158,8 +151,8 @@ class Server {
 		));
 	}
 
-	private function handlePushMessage($queue) {
-		$queueId = $queue['id'];
+	private function handlePushMessage() {
+		$queueId = $params['queue'];
 		$contentType = $_SERVER["CONTENT_TYPE"];
 		$body = file_get_contents('php://input');
 
@@ -172,24 +165,24 @@ class Server {
 		$this->sendQueuePushSuccessMessage($queueId, $response['message_id'], md5($body));
 	}
 
-	private function handlePopMessage($queue) {
-		$request = array('queue_id' => $queue['id']);
+	private function handlePopMessage() {
+		$request = array('queue_id' => $params['queue']);
 		$popMessageResponse = $this->service->popMessage($request);
-		$this->sendQueuePopMessage($queue['id'], $popMessageResponse);
+		$this->sendQueuePopMessage($params['queue'], $popMessageResponse);
 	}
 
-	private function handlePurgeQueue($queue) {
-		$this->service->purgeQueue(array('queue_id' => $queue['id']));
-		$this->sendPurgeSuccessMessage($queue['id']);
+	private function handlePurgeQueue() {
+		$this->service->purgeQueue(array('queue_id' => $params['queue']));
+		$this->sendPurgeSuccessMessage($params['queue']);
 	}
 
-	private function handleUpdateQueueTags($queue) {
+	private function handleUpdateQueueTags() {
 		$tags = $this->parseParamsTags();
 		$this->service->updateQueueTags(array(
-			'queue_id' => $queue['id'],
+			'queue_id' => $params['queue'],
 			'tags' => $tags
 		));
-		$this->sendQueueUpdatedMessage($queue['id']);
+		$this->sendQueueUpdatedMessage($params['queue']);
 	}
 
 	private function parseParamsTags() {
@@ -340,19 +333,21 @@ function config() {
 	$accessManager = new AccessManager();
 	$keyManager = new KeyManager();
 
+	# msg-config is allowed to modify $accessManager and $keyManager
+	# msg-config also MUST define a function config_pdo() to return the PDOConnection
 	require './msg-config.php';
 
-	$queues = new MysqlQueueStorage();
-	$messages = new MysqlMessageStorage();
-	
 	$pdo = config_pdo();
-	$queues->pdo = $pdo;
-	$messages->pdo = $pdo;
-
-	return [$queues, $messages, $keyManager, $accessManager];
+	$queues = new MysqlQueueStorage($pdo);
+	$messages = new MysqlMessageStorage($pdo);
+	$service = new MessagingService($queues, $messages);
+	return [$keyManager, $accessManager, $service];
 }
 
 function handleRequest() {
+	list($auth, $accessManager, $service) = config();
+	$server = new HTTPAPIServer($auth, $accessManager, $service);
+
 	global $_SERVER;
 
 	$host = $_SERVER['HTTP_HOST'];
@@ -364,9 +359,6 @@ function handleRequest() {
 		$headers[strtolower($key)] = $value;
 	}
 
-	list($queues, $messages, $auth, $accessManager) = config();
-	$service = new MessagingService($queues, $messages);
-	$server = new Server($queues, $auth, $accessManager, $service);
 	$server->handleRequest($host, $method, $path, $headers, $params);
 }
 

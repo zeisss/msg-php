@@ -5,6 +5,10 @@ require_once __DIR__ . '/../boundaries.php';
 class MysqlQueueStorage implements QueueStorage {
 	var $pdo;
 
+	public function MysqlQueueStorage($pdo) {
+		$this->pdo = $pdo;
+	}
+
 	public function createQueue($id, $tags) {
 		$id = $this->newid();
 		$stmt = $this->pdo->prepare('INSERT INTO `msg_queues` (id) VALUES (?)');
@@ -108,7 +112,9 @@ class MysqlQueueStorage implements QueueStorage {
 
 class MysqlMessageStorage implements MessageStorage {
 	var $pdo;
-
+	public function MysqlMessageStorage($pdo) {
+		$this->pdo = $pdo;
+	}
 	private function newid() {
 		$bytes = openssl_random_pseudo_bytes(16);
 		return 'msg:message:' . bin2hex($bytes);
