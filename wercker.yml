@@ -5,7 +5,7 @@ build:
         - script:
             name: Validate fs.php
             code: |
-                find . -name '*.php' | xargs -I{} php -l {}
+                find . -name '*.php' | xargs -I{} php -l {}
 
         - script:
             name: copy files to pkg/
