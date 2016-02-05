@@ -138,12 +138,12 @@ class HTTPAPIServer {
 	}
 
 	private function handleDeleteQueue() {
-		$found = $this->service->deleteQueue(array('queue_id' => $params['queue']));
-		$this->sendQueueDeletedMessage($params['queue']);
+		$found = $this->service->deleteQueue(array('queue_id' => $this->params['queue']));
+		$this->sendQueueDeletedMessage($this->params['queue']);
 	}
 
 	private function handleDescribeQueueStatus() {
-		$request = array('queue_id' => $params['queue']);
+		$request = array('queue_id' => $this->params['queue']);
 		$response = $this->service->describeQueueStatus($request);
 		$this->jsonPrint(array(
 			'id' => $queueId,
@@ -152,7 +152,7 @@ class HTTPAPIServer {
 	}
 
 	private function handlePushMessage() {
-		$queueId = $params['queue'];
+		$queueId = $this->params['queue'];
 		$contentType = $_SERVER["CONTENT_TYPE"];
 		$body = file_get_contents('php://input');
 
@@ -166,23 +166,23 @@ class HTTPAPIServer {
 	}
 
 	private function handlePopMessage() {
-		$request = array('queue_id' => $params['queue']);
+		$request = array('queue_id' => $this->params['queue']);
 		$popMessageResponse = $this->service->popMessage($request);
-		$this->sendQueuePopMessage($params['queue'], $popMessageResponse);
+		$this->sendQueuePopMessage($this->params['queue'], $popMessageResponse);
 	}
 
 	private function handlePurgeQueue() {
-		$this->service->purgeQueue(array('queue_id' => $params['queue']));
-		$this->sendPurgeSuccessMessage($params['queue']);
+		$this->service->purgeQueue(array('queue_id' => $this->params['queue']));
+		$this->sendPurgeSuccessMessage($this->params['queue']);
 	}
 
 	private function handleUpdateQueueTags() {
 		$tags = $this->parseParamsTags();
 		$this->service->updateQueueTags(array(
-			'queue_id' => $params['queue'],
+			'queue_id' => $this->params['queue'],
 			'tags' => $tags
 		));
-		$this->sendQueueUpdatedMessage($params['queue']);
+		$this->sendQueueUpdatedMessage($this->params['queue']);
 	}
 
 	private function parseParamsTags() {
