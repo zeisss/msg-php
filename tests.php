@@ -280,8 +280,147 @@ function TestQueueNotFoundException() {
 	}
 }
 
+function TestIllegalArgumentException() {
+	$msgs = newTestMessagingSystem();
+	try {
+		$msgs->describeQueueStatus(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->describeQueueStatus(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->updateQueueTags(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->updateQueueTags(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->updateQueueTags(array('queue_id' => 'foo-bar'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	// -----------------------------------------------
+	try {
+		$msgs->popMessage(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->popMessage(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	// ------------------------------------------------------------------
+	try {
+		$msgs->pushMessage(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->pushMessage(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->pushMessage(array('queue_id' => 'foo-bar', ));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->pushMessage(array('queue_id' => 'foo-bar', 'body' => 'bla'));
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	// --------------------------------
+
+	try {
+		$msgs->purgeQueue(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	try {
+		$msgs->purgeQueue(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+
+	// -----------------------------
+	try {
+		$msgs->deleteQueue(NULL);
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+	try {
+		$msgs->deleteQueue(array());
+		assert(false, "Expected an Exception, got nothing");
+	} catch (IllegalArgumentException $e) {
+
+	} catch (Exception $e) {
+		assert(false, "Unexpected Exception: $e");
+	}
+}
+
 function run_tests() {
 	TestQueueNotFoundException();
+	TestIllegalArgumentException();
 
 	TestCreateQueueInvalidArgs();
 	TestCreateQueue();

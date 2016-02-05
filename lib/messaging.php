@@ -5,23 +5,21 @@ require_once __DIR__ . '/exceptions.php';
 
 function argIsArray($value, $name) {
 	if (gettype($value) != "array") {
-		throw new Exception("Expected '$name' to be an array, got " . gettype($value));
+		throw new IllegalArgumentException("Expected '$name' to be an array, got " . gettype($value));
 	}
 }
 
 function argNotNull($value, $name) {
 	if ($value === NULL) {
-		throw new Exception("Expected $name to not be empty.");
+		throw new IllegalArgumentException("Expected $name to not be empty.");
 	}
 }
 
 function argNotEmpty($value, $name) {
 	if (empty($value)) {
-		throw new Exception("Expected $name to not be empty.");
+		throw new IllegalArgumentException("Expected $name to not be empty.");
 	}
 }
-
-
 
 class MessagingService {
 	private $queues;

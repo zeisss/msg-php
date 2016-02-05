@@ -100,6 +100,8 @@ class HTTPAPIServer {
 								"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
 					}
 			}
+		} catch (IllegalArgumentException $e) {
+			$this->sendMessage("Invalid request", "", true, 400);
 		} catch (QueueNotFoundException $e) {
 			$this->sendQueueNotFound();
 		} catch(Exception $e) {
