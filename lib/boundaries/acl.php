@@ -46,6 +46,7 @@ class Policy {
 		return $this;
 	}
 }
+
 class AccessManager {
 	private $policies;
 

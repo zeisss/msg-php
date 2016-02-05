@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/../boundaries.php';
+require_once __DIR__ . '/../messaging/boundaries.php';
 
 class RAMQueueStorage implements QueueStorage {
 	private $queues;

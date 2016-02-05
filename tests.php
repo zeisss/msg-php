@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/lib/messaging.php';
+require_once __DIR__ . '/lib/messaging/messaging.php';
 require_once __DIR__ . '/lib/boundaries/inmemory.php';
 
 
