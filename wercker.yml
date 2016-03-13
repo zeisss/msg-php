@@ -3,11 +3,12 @@ box: php
 build:
     steps:
         - script:
-            name: Validate fs.php
+            name: Validate PHP files
             code: |
                 find . -name '*.php' | xargs -I{} php -l {}
+
         - script:
-            name: Execute tests
+            name: Run Unit Tests
             code: |
                 php tests.php && success "All tests successfully."
 
@@ -17,13 +18,23 @@ build:
                 mkdir -p $WERCKER_OUTPUT_DIR/pkg/msg-php
                 cp -r lib/ *.html *.php *.example *.md $WERCKER_OUTPUT_DIR/pkg/msg-php/
 
+                echo "Branch: $WERCKER_GIT_BRANCH" > $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+                echo "Commit: $WERCKER_GIT_COMMIT" >> $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+                echo "CI: $CI" >> $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+                echo "WerckerStartedBy: $WERCKER_STARTED_BY" >> $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+                echo "WerckerApplicationUrl: $WERCKER_APPLICATION_URL" >> $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+                echo "WerckerBuildUrl: $WERCKER_BUILD_URL" >> $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO
+
+                debug "$(cat $WERCKER_OUTPUT_DIR/pkg/msg-php/INFO)"
+
         - yudai/targz@0.2.1:
           input: $WERCKER_OUTPUT_DIR/pkg
           output: $WERCKER_OUTPUT_DIR/dist
+
         - script:
            name: show hash sums
            code: |
-               info $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)
+               info "$(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
                setMessage "SHA1: $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
 
         - script:
@@ -54,8 +65,11 @@ deploy:
         - script:
             name: Deploy artifact
             code: |
-                site_name="${DEPLOY_SITENAME:-msg}"
+                site_name=${DEPLOY_SITENAME:-fs}
                 desired_version="${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}"
+
+                test -z "$DEPLOY_TOKEN" && fail "Env DEPLOY_TOKEN missing."
+
                 curl -H"Authorization: bearer ${DEPLOY_TOKEN}" "${DEPLOY_ENDPOINT}" --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" -i
                 echo $?
 
