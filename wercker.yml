@@ -54,8 +54,8 @@ deploy:
         - script:
             name: Deploy artifact
             code: |
-                site_name=${DEPLOY_SITENAME:-msg}
-                desired_version=latest
+                site_name="${DEPLOY_SITENAME:-msg}"
+                desired_version="${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}"
                 curl -H"Authorization: bearer ${DEPLOY_TOKEN}" "${DEPLOY_ENDPOINT}" --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" -i
                 echo $?
 
