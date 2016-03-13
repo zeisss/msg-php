@@ -24,6 +24,7 @@ build:
            name: show hash sums
            code: |
                info $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)
+               setMessage "SHA1: $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
 
         - script:
             name: Upload Build Artifact
@@ -50,7 +51,6 @@ build:
 
 deploy:
     steps:
-
         - script:
             name: Deploy artifact
             code: |
