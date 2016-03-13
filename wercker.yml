@@ -9,7 +9,7 @@ build:
         - script:
             name: Execute tests
             code: |
-                php tests.php
+                php tests.php && success "All tests successfully."
 
         - script:
             name: copy files to pkg/
@@ -23,21 +23,33 @@ build:
         - script:
            name: show hash sums
            code: |
-               cat $WERCKER_OUTPUT_DIR/dist/SHASUMS
+               info $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)
+
+        - script:
+            name: Upload Build Artifact
+            code: |
+                test -z "$FS_USER" && fail "Env FS_USER missing."
+                test -z "$FS_PASSWORD" && fail "Env FS_PASSWORD missing."
+                test -z "$FS_ENDPOINT" && fail "Env FS_ENDPOINT missing."
+
+                name=msg-php
+                file="$WERCKER_OUTPUT_DIR/dist/${name}.tar.gz"
+                path="/artifacts/${name}/${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}/${name}.tar.gz"
+                acl=public-read
+
+                # debug output
+                setMessage "Artifact: $(ls -lah $file)"
+                info "Local file: $(ls -lah $file)"
+                info "ACL: ${acl}"
+                info "Remote path: ${path}"
+
+                # do the upload
+                basecurl="curl -sSv -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
+                ${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' -v
+                success "Upload completed."
 
 deploy:
     steps:
-        - script:
-            name: Upload Build Artifact 
-            code: |
-                VERSION=latest
-                NAME=msg-php
-                file="./dist/${NAME}.tar.gz"
-                path="/artifacts/${NAME}/${VERSION}/${NAME}.tar.gz"
-                basecurl="curl -sS -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
-                acl=private
-                ${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' -i
-                echo $?
 
         - script:
             name: Deploy artifact
@@ -46,3 +58,7 @@ deploy:
                 desired_version=latest
                 curl -H"Authorization: bearer ${DEPLOY_TOKEN}" "${DEPLOY_ENDPOINT}" --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" -i
                 echo $?
+
+    after-steps:
+      - wercker/slack-notifier@1.2.1:
+          url: $DEPLOY_SLACK_URL
