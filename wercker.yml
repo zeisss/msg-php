@@ -57,9 +57,8 @@ build:
 
                 # do the upload
                 basecurl="curl -sSv -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
-                ${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' -v
-                success "Upload completed."
-
+                upload=$(${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' --output upload_result.json -w '%{http_code}')
+                test "$upload" -eq 201 && success "Upload completed." || fail "Upload failed: $(cat upload_result.json)"
 deploy:
     steps:
         - script:
