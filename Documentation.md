@@ -10,7 +10,7 @@ A very simple http based message queue inspired by Amazons SNS.
 
 URIs are string identifiers for objects inside the _msg_ service. They generally take the following format: `msg:<type>:<unique-id>`. Type is one of `queue` or `message`.
 
-### Queue 
+### Queue
 
 ```
 {
@@ -191,8 +191,8 @@ Authorization is simply handled via htbasic auth as defined in the HTTP protocol
 
 Like the _fs-php_ service, _msg_ supports policies to fine tune access to actions and/or resources for special users.
 
-All actions are prefixed with `msg:` and contain the name listed above, e.g. `msg::DescribeQueues`, `msg::PushMessage`.
-All resource names start with `msg:` followed by the type and a unique id, e.g. `msg:queue:123ac12` or `msg:message:123141231`. Actions that do no work on a specific resource, use the resource `msg:*`. 
+All actions are prefixed with `msg::` and contain the name listed above, e.g. `msg::DescribeQueues`, `msg::PushMessage`.
+All resource names start with `msg:` followed by the type and a unique id, e.g. `msg:queue:123ac12` or `msg:message:123141231`. Actions that do no work on a specific resource, use the resource `msg:*`.
 
 ### Examples
 
@@ -200,13 +200,13 @@ All resource names start with `msg:` followed by the type and a unique id, e.g. 
 $accessManager->newPolicy()
 	->description('Eve may push into the ')
 	->forUsername('eve')
-	->forPermission('msg::PushMessage')
+	->permission('msg::PushMessage')
 	->forResource('msg:queue:bf54e8c38a1dbe21246e268ab3109aff');
 
 $accessManager->newPolicy()
 	->description('Bob may only check queues and consume messages')
 	->forUsername('bob')
-	->forPermission('msg::Describe*')
+	->permission('msg::Describe*')
 	->forPermission('msg::PopMessage')
 	->forResource('msg:*');
 ```
