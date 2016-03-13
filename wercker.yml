@@ -57,20 +57,28 @@ build:
 
                 # do the upload
                 basecurl="curl -sS -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
-                upload=$(${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' --output upload_result.json -w '%{http_code}')
-                test "$upload" -eq 201 && success "Upload completed." || fail "upload: $(cat upload_result.json)"
+                upload=$(${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' --output $WERCKER_REPORT_ARTIFACTS_DIR/upload_result.json -w '%{http_code}')
+                if [ "$upload" -eq 201 ]; then
+                  success "Upload completed."
+                else
+                  fail "upload: $(cat $WERCKER_REPORT_ARTIFACTS_DIR/upload_result.json)"
+                fi
 deploy:
     steps:
         - script:
             name: Deploy artifact
             code: |
-                site_name=${DEPLOY_SITENAME:-fs}
+                site_name=${DEPLOY_SITENAME:-msg}
                 desired_version="${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}"
 
                 test -z "$DEPLOY_TOKEN" && fail "Env DEPLOY_TOKEN missing."
 
-                curl -H"Authorization: bearer ${DEPLOY_TOKEN}" "${DEPLOY_ENDPOINT}" --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" -i
-                echo $?
+                deployResult=$(curl -H"Authorization: bearer ${DEPLOY_TOKEN}" "${DEPLOY_ENDPOINT}" --data-urlencode "site=${site_name}" --data-urlencode "desired_version=${desired_version}" --output $WERCKER_REPORT_ARTIFACTS_DIR/deploy.json -w '%{http_code}')
+                if [ "$deployResult" -eq 200 ]; then
+                  success "Deploy completed."
+                else
+                  fail "$(cat $WERCKER_REPORT_ARTIFACTS_DIR/deploy.json)"
+                fi
 
     after-steps:
       - wercker/slack-notifier@1.2.1:
