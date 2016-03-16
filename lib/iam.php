@@ -1,5 +1,4 @@
 <?php
-include_once __DIR__ . '/lib/boundaries/mysql.php';
 
 class KeyManager {
 	private $keys;
@@ -97,7 +96,7 @@ class AccessManager {
 		// * if any policies has effect=deny, it wins over an allow policy
 		// * at least one policy must allow, other it also denies
 		//
-		// see also https://github.com/ory-am/ladon/blob/master/guard/guard.go 
+		// see also https://github.com/ory-am/ladon/blob/master/guard/guard.go
 		foreach($this->policies as $policy) {
 			// Check usernames match
 			if (sizeof($policy->usernames) > 0) {

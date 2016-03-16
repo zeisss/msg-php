@@ -36,33 +36,13 @@ build:
            code: |
                info "$(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
                setMessage "SHA1: $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
-
-        - script:
-            name: Upload Build Artifact
-            code: |
-                test -z "$FS_USER" && fail "Env FS_USER missing."
-                test -z "$FS_PASSWORD" && fail "Env FS_PASSWORD missing."
-                test -z "$FS_ENDPOINT" && fail "Env FS_ENDPOINT missing."
-
-                name=msg-php
-                file="$WERCKER_OUTPUT_DIR/dist/${name}.tar.gz"
-                path="/artifacts/${name}/${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}/${name}.tar.gz"
-                acl=public-read
-
-                # debug output
-                setMessage "Artifact: $(ls -lah $file)"
-                info "Local file: $(ls -lah $file)"
-                info "ACL: ${acl}"
-                info "Remote path: ${path}"
-
-                # do the upload
-                basecurl="curl -sS -u${FS_USER}:${FS_PASSWORD} ${FS_ENDPOINT}"
-                upload=$(${basecurl}${path}.ignore -XPUT --data-binary @$file -H"X-ACL: ${acl}" -H'Content-Type: application/octet-stream' --output $WERCKER_REPORT_ARTIFACTS_DIR/upload_result.json -w '%{http_code}')
-                if [ "$upload" -eq 201 ]; then
-                  success "Upload completed."
-                else
-                  fail "upload: $(cat $WERCKER_REPORT_ARTIFACTS_DIR/upload_result.json)"
-                fi
+        - zeisss/mfs-upload@0.1.3:
+            url: $FS_ENDPOINT
+            file: $WERCKER_OUTPUT_DIR/dist/msg-php.tar.gz
+            path: /artifacts/msg-php/${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}/msg-php.tar.gz
+            username: $FS_USER
+            password: $FS_PASSWORD
+            acl: public-read
 deploy:
     steps:
         - script:
