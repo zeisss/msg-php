@@ -23,13 +23,13 @@ class HTTPAPIServer {
 		$this->host = $host;
 
 		if ($method !== "POST") {
-			$this->sendMessage("Invalid request method", 
+			$this->sendMessage("Invalid request method",
 					"Only POST is supported. Please contact the documentation.", true, 405);
 		}
 
 		$action = $params['action'];
 		if (empty($action)) {
-			$this->sendMessage("Invalid action", 
+			$this->sendMessage("Invalid action",
 				"Parameter 'action' required. Please provide one.", true, 400);
 		}
 
@@ -50,14 +50,14 @@ class HTTPAPIServer {
 			switch($action) {
 				case "DescribeQueues":
 					$this->handleDescribeQueues();
-				case "CreateQueue": 
+				case "CreateQueue":
 					$this->handleCreateQueue();
 				default:
 					switch ($action) {
 						case "PushMessage":
 							$this->handlePushMessage();
 						case "PopMessage":
-							$this->handlePopMessage();				
+							$this->handlePopMessage();
 						case "DeleteQueue":
 							$this->handleDeleteQueue();
 						case "DescribeQueueStatus":
@@ -76,7 +76,7 @@ class HTTPAPIServer {
 		} catch (QueueNotFoundException $e) {
 			$this->sendQueueNotFound();
 		} catch(Exception $e) {
-			$this->sendMessage("Internal Server Error", 
+			$this->sendMessage("Internal Server Error",
 						$e->getMessage(), true, 500);
 		}
 	}
@@ -206,7 +206,7 @@ class HTTPAPIServer {
 		$this->jsonPrint(array(
 			'queue' => $queueId,
 			'message' => $messageObj
-		));	
+		));
 	}
 
 	private function sendQueueNotFound() {
@@ -233,7 +233,7 @@ class HTTPAPIServer {
 
 	private function jsonPrint($obj) {
 		header("Content-Type: application/json");
-		die(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");	
+		die(json_encode($obj, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 	}
 
 	private function requiresAuthentication($permission, $resource) {
@@ -244,10 +244,10 @@ class HTTPAPIServer {
 
 			$this->sendMessage("Authentication required", "Provided credentials are invalid.", true, 401);
 		} else {
-			
+
 			$granted = $this->accessManager->isGranted(
 				$resource,
-				$this->username, 
+				$this->username,
 				$permission
 			);
 
@@ -289,7 +289,7 @@ class HTTPAPIServer {
 function config_pdo() {
 	return # Database
 	$pdo = new PDO(
-		'mysql:dbname=<db>;host=<ip>', 
+		'mysql:dbname=<db>;host=<ip>',
 		'<username>', '<password>',
       	array(PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES \'UTF8\'')
     );

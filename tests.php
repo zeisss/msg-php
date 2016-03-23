@@ -7,6 +7,7 @@ require_once __DIR__ . '/lib/messaging/storage/inmemory.php';
 function assertNotEmpty($value) {
 	assert(!empty($value), 'value must not be empty');
 }
+
 function assertNotNull($value) {
 	assert($value !== NULL, 'value must not be null');
 }
@@ -18,6 +19,7 @@ function assertEquals($expected, $value) {
 function assertNull($value) {
 	assert(NULL === $value, "value must be empty");
 }
+
 function assertEmpty($value) {
 	assert(empty($value), "value must be empty");
 }
@@ -39,11 +41,10 @@ function givenExistingQueue($service, $tags = []) {
 function givenPublishedMessage($service, $queueId) {
 	$result = $service->pushMessage(array(
 		'queue_id' => $queueId,
-		'content_type' => 'text/plain', 
+		'content_type' => 'text/plain',
 		'body' => 'Hello World!'
 	));
 	assertNotEmpty($result);
-
 
 	$details = $service->describeQueueStatus(array('queue_id' => $queueId));
 	assert($details['message_count'] >= 0, "Expected message count to be at least 1");
@@ -60,7 +61,6 @@ function TestCreateQueueInvalidArgs() {
 		// good!
 	}
 }
-
 
 function TestCreateQueue() {
 	$msgs = newTestMessagingSystem();
@@ -281,7 +281,7 @@ function TestQueueNotFoundException() {
 
 function TestIllegalArgumentException() {
 	$msgs = newTestMessagingSystem();
-	
+
 	$inputs = [NULL, array(), array('queue_id' => 'illegal-id')];
 	foreach($inputs as $input) {
 		try {
@@ -291,7 +291,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 
 	// ----------------
@@ -304,7 +304,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 
 	// ----------------
@@ -317,7 +317,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 
 	// ----------------
@@ -330,7 +330,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 
 	// --------------------------------
@@ -342,7 +342,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 
 	// -----------------------------
@@ -354,7 +354,7 @@ function TestIllegalArgumentException() {
 
 		} catch (Exception $e) {
 			assert(false, "Unexpected Exception: $e");
-		}	
+		}
 	}
 }
 

@@ -36,6 +36,7 @@ build:
            code: |
                info "$(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
                setMessage "SHA1: $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
+
         - zeisss/mfs-upload@0.1.3:
             url: $FS_ENDPOINT
             file: $WERCKER_OUTPUT_DIR/dist/msg-php.tar.gz
@@ -43,6 +44,7 @@ build:
             username: $FS_USER
             password: $FS_PASSWORD
             acl: public-read
+
 deploy:
     steps:
         - script:
@@ -59,7 +61,6 @@ deploy:
                 else
                   fail "$(cat $WERCKER_REPORT_ARTIFACTS_DIR/deploy.json)"
                 fi
-
     after-steps:
       - wercker/slack-notifier@1.2.1:
           url: $DEPLOY_SLACK_URL
