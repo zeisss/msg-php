@@ -2,11 +2,23 @@
 
 require_once __DIR__ . '/../boundaries.php';
 
-class RAMQueueStorage implements QueueStorage {
+class RAMQueueStorage implements QueueStorage, QueueStorageMetrics {
 	private $queues;
 
 	public function RAMQueueStorage() {
 		$this->queues = [];
+	}
+
+	public function getTagCount() {
+		$count = 0;
+		foreach($this->queues as $q) {
+			$count += sizeof($q['tags']);
+		}
+		return $count;
+	}
+
+	public function getQueueCount() {
+		return sizeof($this->queues);
 	}
 
 	function createQueue($id, $tags) {
@@ -65,10 +77,14 @@ class RAMQueueStorage implements QueueStorage {
 	}
 }
 
-class RAMMessageStorage implements MessageStorage {
+class RAMMessageStorage implements MessageStorage, MessageStorageMetrics {
 	private $messages;
 	public function RAMMessageStorage() {
 		$this->messages = [];
+	}
+
+	public function getPendingMessageCount() {
+		return sizeof($this->messages);
 	}
 
 	function createMessage($id, $queueId, $contentType, $message) {
@@ -119,4 +135,3 @@ class RAMMessageStorage implements MessageStorage {
 		}
 	}
 }
-

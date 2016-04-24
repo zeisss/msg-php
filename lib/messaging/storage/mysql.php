@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../boundaries.php';
 
-class MysqlQueueStorage implements QueueStorage {
+class MysqlQueueStorage implements QueueStorage, QueueStorageMetrics {
 	var $pdo;
 
 	public function MysqlQueueStorage($pdo) {
@@ -12,7 +12,7 @@ class MysqlQueueStorage implements QueueStorage {
 	public function createQueue($id, $tags) {
 		$stmt = $this->pdo->prepare('INSERT INTO `msg_queues` (id) VALUES (?)');
     	$stmt->execute(array($id));
-		
+
 		$this->insertTags($id, $tags);
     	return $id;
 	}
@@ -55,7 +55,7 @@ class MysqlQueueStorage implements QueueStorage {
 		$result = $stmt->fetchAll();
 
 		return $this->fromResultSet($result);
-	}	
+	}
 
 	private function fromResultSet($resultSet) {
 		$queues = [];
@@ -66,7 +66,7 @@ class MysqlQueueStorage implements QueueStorage {
 					$queues[] = $lastQueue;
 				}
 				$lastQueue = array('id' => $row['id'], 'tags' => []);
-				
+
 			}
 
 			if (!empty($row['tag'])) {
@@ -107,9 +107,25 @@ class MysqlQueueStorage implements QueueStorage {
 		$stmt->execute(array($queue));
 		return true;
 	}
+
+	public function getQueueCount() {
+		$sql = 'SELECT COUNT(*) AS cnt FROM `msg_queues`';
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute(array($queueId));
+		$rows = $stmt->fetchAll();
+		return $rows[0]['cnt'];
+	}
+
+	public function getTagCount() {
+		$sql = 'SELECT COUNT(*) AS cnt FROM `msg_queue_tags`';
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute(array($queueId));
+		$rows = $stmt->fetchAll();
+		return $rows[0]['cnt'];
+	}
 }
 
-class MysqlMessageStorage implements MessageStorage {
+class MysqlMessageStorage implements MessageStorage, MessageStorageMetrics {
 	var $pdo;
 	public function MysqlMessageStorage($pdo) {
 		$this->pdo = $pdo;
@@ -155,5 +171,13 @@ class MysqlMessageStorage implements MessageStorage {
 		$sql = 'DELETE FROM `msg_messages` WHERE queue_id = ?';
 		$stmt = $this->pdo->prepare($sql);
 		$stmt->execute(array($queueId));
+	}
+
+	public function getPendingMessageCount() {
+		$sql = 'SELECT COUNT(*) AS cnt FROM `msg_messages`';
+		$stmt = $this->pdo->prepare($sql);
+		$stmt->execute(array($queueId));
+		$rows = $stmt->fetchAll();
+		return $rows[0]['cnt'];
 	}
 }
