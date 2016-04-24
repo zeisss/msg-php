@@ -43,7 +43,10 @@ class MessagingService {
 	}
 
 	public function getMetrics() {
-		return [];
+		return [
+			array('type' => 'gauge', 'name' => 'messages_pending', 'help' => 'Messages pending in all queues', 'value' => 0),
+			array('type' => 'gauge', 'name' => 'queues', 'help' => 'Number of created queues', 'value' => 0)
+		];
 	}
 
 	public function createQueue($createQueueReq) {

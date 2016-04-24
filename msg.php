@@ -160,10 +160,16 @@ class HTTPAPIServer {
 
 		$body = "";
 		$tags = "service=\"msg-php\"";
-		foreach($metrics as $key => $value) {
+		foreach($metrics as $metric) {
+			if (isset($metric['help'])) {
+				$body .= "# HELP ${metric['name']} ${metric['help']}\n";
+			}
+			if (isset($metric['type'])) {
+				$body .= "# TYPE ${metric['name']} ${metric['type']}\n";
+			}
 			# should becomes
 			# "thisisthekey{thesearethetags} thisisthevalue\n"
-			$body .= "${key}{${tags}} ${value}\n";
+			$body .= "${metric['name']}{${tags}} ${metric['value']}\n";
 		}
 
 		header('Content-Type: plain/text; version=0.0.4');
