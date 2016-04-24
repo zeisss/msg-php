@@ -31,7 +31,6 @@ class MessagingService {
 	private $queues;
 	private $messages;
 
-
 	private function newid($type) {
 		$bytes = openssl_random_pseudo_bytes(16);
 		return 'msg:' . $type . ':' . bin2hex($bytes);
@@ -44,8 +43,9 @@ class MessagingService {
 
 	public function getMetrics() {
 		return [
-			array('type' => 'gauge', 'name' => 'messages_pending', 'help' => 'Messages pending in all queues', 'value' => 0),
-			array('type' => 'gauge', 'name' => 'queues', 'help' => 'Number of created queues', 'value' => 0)
+			array('type' => 'gauge', 'name' => 'messages_pending', 'help' => 'Messages pending in all queues', 'value' => $this->messages->getPendingMessageCount()),
+			array('type' => 'gauge', 'name' => 'queue_count', 'help' => 'Number of created queues', 'value' => $this->queues->getQueueCount()),
+			array('type' => 'gauge', 'name' => 'queue_tag_count', 'help' => 'Number of tags on all queues', 'value' => $this->queues->getTagCount())
 		];
 	}
 

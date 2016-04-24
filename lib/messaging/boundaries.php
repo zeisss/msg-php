@@ -18,3 +18,10 @@ interface MessageStorage {
 	function purge($queueId);
 }
 
+interface QueueStorageMetrics {
+	function getQueueCount();
+	function getTagCount();
+}
+interface MessageStorageMetrics {
+	function getPendingMessageCount();
+}

@@ -168,8 +168,8 @@ class HTTPAPIServer {
 				$body .= "# TYPE ${metric['name']} ${metric['type']}\n";
 			}
 			# should becomes
-			# "thisisthekey{thesearethetags} thisisthevalue\n"
-			$body .= "${metric['name']}{${tags}} ${metric['value']}\n";
+			# "thisisthekey{these=are,the=tags} thisisthevalue\n"
+			$body .= $metric['name'] . '{' . $tags . '} ' . $metric['value'] . "\n";
 		}
 
 		header('Content-Type: plain/text; version=0.0.4');
