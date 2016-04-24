@@ -52,24 +52,23 @@ class HTTPAPIServer {
 					$this->handleDescribeQueues();
 				case "CreateQueue":
 					$this->handleCreateQueue();
+				case "PushMessage":
+					$this->handlePushMessage();
+				case "PopMessage":
+					$this->handlePopMessage();
+				case "DeleteQueue":
+					$this->handleDeleteQueue();
+				case "DescribeQueueStatus":
+					$this->handleDescribeQueueStatus();
+				case "PurgeQueue":
+					$this->handlePurgeQueue();
+				case "UpdateQueueTags":
+					$this->handleUpdateQueueTags();
+				case "FetchPrometheusMetrics":
+					$this->handleFetchPrometheusMetrics();
 				default:
-					switch ($action) {
-						case "PushMessage":
-							$this->handlePushMessage();
-						case "PopMessage":
-							$this->handlePopMessage();
-						case "DeleteQueue":
-							$this->handleDeleteQueue();
-						case "DescribeQueueStatus":
-							$this->handleDescribeQueueStatus();
-						case "PurgeQueue":
-							$this->handlePurgeQueue();
-						case "UpdateQueueTags":
-							$this->handleUpdateQueueTags();
-						default:
-							$this->sendMessage("Invalid action",
-								"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
-					}
+					$this->sendMessage("Invalid action",
+						"Unknown action '${params['action']}'. Please provide a valid one.", true, 400);
 			}
 		} catch (IllegalArgumentException $e) {
 			$this->sendMessage("Invalid request", "", true, 400);
@@ -154,6 +153,21 @@ class HTTPAPIServer {
 			'tags' => $tags
 		));
 		$this->sendQueueUpdatedMessage($this->params['queue']);
+	}
+
+	private function handleFetchPrometheusMetrics() {
+		$metrics = $this->service->getMetrics();
+
+		$body = "";
+		$tags = "service=\"msg-php\"";
+		foreach($metrics as $key => $value) {
+			# should becomes
+			# "thisisthekey{thesearethetags} thisisthevalue\n"
+			$body .= "${key}{${tags}} ${value}\n";
+		}
+
+		header('Content-Type: plain/text; version=0.0.4');
+		die($body);
 	}
 
 	private function parseParamsTags() {

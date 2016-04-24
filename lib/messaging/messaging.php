@@ -42,6 +42,10 @@ class MessagingService {
 		$this->messages = $messages;
 	}
 
+	public function getMetrics() {
+		return [];
+	}
+
 	public function createQueue($createQueueReq) {
 		argIsArray($createQueueReq['tags'], "tags");
 
@@ -123,8 +127,8 @@ class MessagingService {
 		}
 		$this->messages->deleteMessage($queue['id'], $message['id']);
 		return array(
-			'id' => $message['id'], 
-			'content_type' => $message['content_type'], 
+			'id' => $message['id'],
+			'content_type' => $message['content_type'],
 			'body' => $message['body'],
 			'created_at' => $message['created_at']
 		);
