@@ -22,19 +22,19 @@ class HTTPAPIServer {
 		$this->method = $method;
 		$this->host = $host;
 
-		if ($method !== "POST") {
-			$this->sendMessage("Invalid request method",
-					"Only POST is supported. Please contact the documentation.", true, 405);
-		}
-
 		$action = $params['action'];
 		if (empty($action)) {
 			$this->sendMessage("Invalid action",
 				"Parameter 'action' required. Please provide one.", true, 400);
 		}
 
+		if ($action != "FetchPrometheusMetrics" && $method !== "POST") {
+			$this->sendMessage("Invalid request method",
+					"Only POST is supported. Please contact the documentation.", true, 405);
+		}
+
 		$authResource = $params['queue'];
-		if ($action == "CreateQueue" || $action == "DescribeQueues") {
+		if ($action == "CreateQueue" || $action == "DescribeQueues" || $action == "FetchPrometheusMetrics") {
 			# CreateQueue requires no queue parameter
 			$authResource = "msg:queue:*";
 		}
