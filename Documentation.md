@@ -160,6 +160,14 @@ Response Fields  | Type    | Description
 queue            | URI     | The URI of the queue
 message          | Message | The messages that was dequeued
 
+### FetchPrometheusMetrics
+
+This action prints the following metrics in the [Prometheus](http://prometheus.io) text format.
+
+ * Number of defined queues
+ * Number of defined tags on all defined queues
+ * Number of pending messages in all defined queues
+
 ## Common Errors
 
 ### Invalid Method
