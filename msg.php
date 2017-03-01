@@ -182,7 +182,10 @@ class HTTPAPIServer {
 				$t .= ',' . $name . '="' . $value . '"';
 			}
 			$t = substr($t, 1);
-			$body .= $metric['name'] . '{' . $t . '} ' . $metric['value'] . "\n";
+			if ($t != "") {
+				$t = '{' . $t . '}';
+			}
+			$body .= $metric['name'] . $t . ' ' . $metric['value'] . "\n";
 		}
 
 		header('Content-Type: plain/text; version=0.0.4');
