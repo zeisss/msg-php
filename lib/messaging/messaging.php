@@ -36,9 +36,10 @@ class MessagingService {
 		return 'msg:' . $type . ':' . bin2hex($bytes);
 	}
 
-	public function MessagingService($queues, $messages) {
+	public function MessagingService($queues, $messages, $stats) {
 		$this->queues = $queues;
 		$this->messages = $messages;
+		$this->stats = $stats;
 	}
 
 	public function getMetrics() {
@@ -54,6 +55,8 @@ class MessagingService {
 
 		$id = $this->newid('queue');
 		$this->queues->createQueue($id, $createQueueReq['tags']);
+
+		$this->stats->counter_inc('queue_created', []);
 
 		return array(
 			'id' => $id,
@@ -71,6 +74,7 @@ class MessagingService {
 
 		$this->queues->deleteQueue($deleteQueueReq['queue_id']);
 		$this->messages->purge($deleteQueueReq['queue_id']);
+		$this->stats->counter_inc('queue_deleted', []);
 		return array();
 	}
 
@@ -81,6 +85,7 @@ class MessagingService {
 		} else {
 			$queues = $this->queues->getQueuesByTags($request['tags']);
 		}
+		$this->stats->counter_inc('queues_described', []);
 		return $queues;
 	}
 
@@ -94,7 +99,10 @@ class MessagingService {
 		}
 
 		$id = $this->newid('message');
-		$this->messages->createMessage($id, $request['queue_id'], $request['content_type'], $request['body']);
+		$this->messages->createMessage($id, $request['queue_id'], 
+			$request['content_type'], $request['body']
+		);
+		$this->stats->counter_inc('message_pushed', []);
 
 		return array(
 			'message_id' => $id
@@ -110,6 +118,8 @@ class MessagingService {
 		}
 
 		$messageCount = $this->messages->getMessageCount($request['queue_id']);
+
+		$this->stats->counter_inc('queue_status_described', []);
 
 		return array(
 			'message_count' => $messageCount
@@ -129,6 +139,9 @@ class MessagingService {
 			return NULL;
 		}
 		$this->messages->deleteMessage($queue['id'], $message['id']);
+
+		$this->stats->counter_inc('message_poped', []);
+
 		return array(
 			'id' => $message['id'],
 			'content_type' => $message['content_type'],
@@ -146,6 +159,7 @@ class MessagingService {
 		}
 
 		$this->messages->purge($queue['id']);
+		$this->stats->counter_inc('queue_purged', []);
 
 		return array(); # we always return sthg
 	}
@@ -160,6 +174,7 @@ class MessagingService {
 		}
 		$this->queues->deleteTags($queue['id']);
 		$this->queues->insertTags($queue['id'], $request['tags']);
+		$this->stats->counter_inc('queue_tags_updated', []);
 
 		return array(); # we always return sthg
 	}

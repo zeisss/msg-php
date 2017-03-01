@@ -25,3 +25,7 @@ interface QueueStorageMetrics {
 interface MessageStorageMetrics {
 	function getPendingMessageCount();
 }
+
+interface MessagingStatsReporter {
+	function counter_inc($name, $labels, $inc = 1);
+}

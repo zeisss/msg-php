@@ -331,12 +331,14 @@ function config() {
 	$pdo = config_pdo();
 	$queues = new MysqlQueueStorage($pdo);
 	$messages = new MysqlMessageStorage($pdo);
-	$service = new MessagingService($queues, $messages);
-	return [$keyManager, $accessManager, $service];
+	$stats = new MysqlMessagingStatsReporter($pdo);
+	$service = new MessagingService($queues, $messages, $stats);
+
+	return [$keyManager, $accessManager, $stats, $service];
 }
 
 function handleRequest() {
-	list($auth, $accessManager, $service) = config();
+	list($auth, $accessManager, $stats, $service) = config();
 	$server = new HTTPAPIServer($auth, $accessManager, $service);
 
 	global $_SERVER;

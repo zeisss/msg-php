@@ -181,3 +181,17 @@ class MysqlMessageStorage implements MessageStorage, MessageStorageMetrics {
 		return $rows[0]['cnt'];
 	}
 }
+
+
+class MysqlMessagingStatsReporter implements MessagingStatsReporter {
+	private $pdo;
+	private __construct($pdo) {
+		$this->pdo = $pdo;
+	}
+	public function counter_inc($name, $labels, $inc = 1) {
+		$l = json_encode($labels);
+		$sql = 'INSERT DELAYED INTO `statistics` (`name`, `labels`, `value`) VALUES (?,?,?) ' . 
+           'ON DUPLICATE KEY UPDATE `value` = `value` + ?';
+    	$this->pdo->prepare($sql)->execute(array($name, $l, $inc, $inc));
+	}
+}
