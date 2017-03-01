@@ -28,7 +28,8 @@ function assertEmpty($value) {
 function newTestMessagingSystem($queues = NULL, $messages = NULL) {
 	return new MessagingService(
 		$queues === NULL ? new RAMQueueStorage() : $queues,
-		$messages === NULL ? new RAMMessageStorage() : $messages
+		$messages === NULL ? new RAMMessageStorage() : $messages,
+		$stats == NULL ? new RAMMessagingStatsReporter() : $stats
 	);
 }
 

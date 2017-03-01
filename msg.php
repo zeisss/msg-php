@@ -9,7 +9,7 @@ class HTTPAPIServer {
 	private $accessManager;
 	private $service;
 
-	function HTTPAPIServer($auth, $accessManager, $service) {
+	function __construct($auth, $accessManager, $service) {
 		$this->auth = $auth;
 		$this->accessManager = $accessManager;
 		$this->service = $service;
