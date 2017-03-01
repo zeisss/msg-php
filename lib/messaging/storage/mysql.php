@@ -190,8 +190,8 @@ class MysqlMessagingStatsReporter implements MessagingStatsReporter {
 	}
 	public function counter_inc($name, $labels, $inc = 1) {
 		$l = json_encode($labels);
-		$sql = 'INSERT DELAYED INTO `statistics` (`name`, `labels`, `value`) VALUES (?,?,?) ' . 
-           'ON DUPLICATE KEY UPDATE `value` = `value` + ?';
-    	$this->pdo->prepare($sql)->execute(array($name, $l, $inc, $inc));
+		$sql = 'INSERT DELAYED INTO `msg_stats` (`name`, `labels`, `value`) VALUES (?,?,?) ' .
+			'ON DUPLICATE KEY UPDATE `value` = `value` + ?';
+		$this->pdo->prepare($sql)->execute(array($name, $l, $inc, $inc));
 	}
 }
