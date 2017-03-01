@@ -7,11 +7,13 @@ require_once __DIR__ . '/lib/messaging/storage/mysql.php';
 class HTTPAPIServer {
 	private $auth;
 	private $accessManager;
+	private $stats;
 	private $service;
 
-	function __construct($auth, $accessManager, $service) {
+	function __construct($auth, $accessManager, $stats, $service) {
 		$this->auth = $auth;
 		$this->accessManager = $accessManager;
+		$this->stats = $stats;
 		$this->service = $service;
 	}
 
@@ -33,7 +35,10 @@ class HTTPAPIServer {
 					"Only POST is supported. Please contact the documentation.", true, 405);
 		}
 
-		$authResource = $params['queue'];
+		$authResource = "";
+		if (!empty($params['queue'])) {
+			$authResource = $params['queue'];
+		}
 		if ($action == "CreateQueue" || $action == "DescribeQueues" || $action == "FetchPrometheusMetrics") {
 			# CreateQueue requires no queue parameter
 			$authResource = "msg:queue:*";
@@ -349,7 +354,7 @@ function config() {
 
 function handleRequest() {
 	list($auth, $accessManager, $stats, $service) = config();
-	$server = new HTTPAPIServer($auth, $accessManager, $service);
+	$server = new HTTPAPIServer($auth, $accessManager, $stats, $service);
 
 	global $_SERVER;
 
