@@ -5,7 +5,7 @@ require_once __DIR__ . '/../boundaries.php';
 class MysqlQueueStorage implements QueueStorage, QueueStorageMetrics {
 	var $pdo;
 
-	public function MysqlQueueStorage($pdo) {
+	public function __construct($pdo) {
 		$this->pdo = $pdo;
 	}
 
@@ -127,7 +127,7 @@ class MysqlQueueStorage implements QueueStorage, QueueStorageMetrics {
 
 class MysqlMessageStorage implements MessageStorage, MessageStorageMetrics {
 	var $pdo;
-	public function MysqlMessageStorage($pdo) {
+	public function __construct($pdo) {
 		$this->pdo = $pdo;
 	}
 	public function createMessage($id, $queueId, $contentType, $message) {
@@ -185,7 +185,7 @@ class MysqlMessageStorage implements MessageStorage, MessageStorageMetrics {
 
 class MysqlMessagingStatsReporter implements MessagingStatsReporter {
 	private $pdo;
-	private __construct($pdo) {
+	public function __construct($pdo) {
 		$this->pdo = $pdo;
 	}
 	public function counter_inc($name, $labels, $inc = 1) {

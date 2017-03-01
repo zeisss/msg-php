@@ -3,7 +3,7 @@
 class KeyManager {
 	private $keys;
 
-	public function KeyManager() {
+	public function __construct() {
 		$this->keys = array();
 	}
 	public function addBcryptCredentials($name, $hash) {
@@ -77,7 +77,7 @@ class Policy {
 class AccessManager {
 	private $policies;
 
-	public function AccessManager() {
+	public function __construct() {
 		$this->policies = array();
 	}
 
@@ -119,12 +119,10 @@ class AccessManager {
 
 			// Apply result
 			if (!$policy->hasAccess()) {
-				#echo "isGranted($username, $prefix, $permission) = false # access\n";
 				return false;
 			}
 			$allowed = true;
 		}
-		#echo "isGranted($username, $prefix, $permission) = $allowed # allowed\n";
 		return $allowed;
 	}
 

@@ -31,12 +31,12 @@ class MessagingService {
 	private $queues;
 	private $messages;
 
-	private function newid($type) {
+	private static function newid($type) {
 		$bytes = openssl_random_pseudo_bytes(16);
 		return 'msg:' . $type . ':' . bin2hex($bytes);
 	}
 
-	public function MessagingService($queues, $messages, $stats) {
+	public function __construct($queues, $messages, $stats) {
 		$this->queues = $queues;
 		$this->messages = $messages;
 		$this->stats = $stats;
@@ -53,7 +53,7 @@ class MessagingService {
 	public function createQueue($createQueueReq) {
 		argIsArray($createQueueReq['tags'], "tags");
 
-		$id = $this->newid('queue');
+		$id = MessagingService::newid('queue');
 		$this->queues->createQueue($id, $createQueueReq['tags']);
 
 		$this->stats->counter_inc('queue_created', []);
