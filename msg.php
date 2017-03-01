@@ -156,10 +156,13 @@ class HTTPAPIServer {
 	}
 
 	private function handleFetchPrometheusMetrics() {
-		$metrics = $this->service->getMetrics();
+		$metrics = array_merge(
+			$this->service->getMetrics(),
+			$this->stats->getMetrics()
+		);
 
 		$body = "";
-		$tags = "service=\"msg-php\"";
+		$tags = "";
 		foreach($metrics as $metric) {
 			if (isset($metric['help'])) {
 				$body .= "# HELP ${metric['name']} ${metric['help']}\n";
@@ -169,17 +172,24 @@ class HTTPAPIServer {
 			}
 			# should becomes
 			# "thisisthekey{these=are,the=tags} thisisthevalue\n"
-			$body .= $metric['name'] . '{' . $tags . '} ' . $metric['value'] . "\n";
+			$t = "";
+			foreach ($metrics['labels'] as $name => $value) {
+				$t .= ',' . $name . '="' . $value . '"';
+			}
+			$t = substr($t, 1);
+			$body .= $metric['name'] . '{' . $t . '} ' . $metric['value'] . "\n";
 		}
 
 		header('Content-Type: plain/text; version=0.0.4');
 		die($body);
 	}
 
+	// parseParamsTags parses the tag keys from the request.
+	// 
 	private function parseParamsTags() {
 		// construct tags from query parameters ?tag.1.key=name&tag.1.value=demo&tag.2.
 		$tags = [];
-		for ($i = 1;$i < 20; $i++) {
+		for ($i = 1;$i <= 20; $i++) {
 			if (!isset($this->params["tags_{$i}_key"])) {
 				break;
 			}

@@ -140,5 +140,7 @@ class RAMMessagingStatsReporter implements MessagingStatsReporter {
 	public function counter_inc($name, $labels, $inc = 1) {
 		
 	}
+
+	public function getMetrics() { return array(); }
 }
 

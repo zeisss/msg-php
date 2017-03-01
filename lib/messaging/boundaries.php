@@ -22,10 +22,12 @@ interface QueueStorageMetrics {
 	function getQueueCount();
 	function getTagCount();
 }
+
 interface MessageStorageMetrics {
 	function getPendingMessageCount();
 }
 
 interface MessagingStatsReporter {
 	function counter_inc($name, $labels, $inc = 1);
+	function getMetrics();
 }
