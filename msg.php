@@ -372,5 +372,19 @@ function handleRequest() {
 
 	$server->handleRequest($host, $method, $path, $headers, $params);
 }
+// mod_proxy_fcgi doesn't provide function getallheaders()
+// (as opposed to mod_fastcgi)
+// Taken from: https://www.popmartian.com/tipsntricks/2015/07/14/howto-use-php-getallheaders-under-fastcgi-php-fpm-nginx-etc/
+if (!function_exists('getallheaders')) {
+  function getallheaders() {
+    $headers = [];
+    foreach ($_SERVER as $name => $value) {
+      if (substr($name, 0, 5) == 'HTTP_') {
+        $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+      }
+    }
+    return $headers;
+  }
+}
 
 handleRequest();
