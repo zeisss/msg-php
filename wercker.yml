@@ -35,9 +35,10 @@ build:
            name: show hash sums
            code: |
                info "$(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
+               info "$(ls -lah $WERCKER_OUTPUT_DIR/dist)"
                setMessage "SHA1: $(cat $WERCKER_OUTPUT_DIR/dist/SHASUMS)"
 
-        - zeisss/mfs-upload@0.1.3:
+        - zeisss/mfs-upload:    
             url: $FS_ENDPOINT
             file: $WERCKER_OUTPUT_DIR/dist/msg-php.tar.gz
             path: /artifacts/msg-php/${WERCKER_GIT_BRANCH}-${WERCKER_GIT_COMMIT}/msg-php.tar.gz
@@ -59,7 +60,7 @@ deploy:
                 if [ "$deployResult" -eq 200 ]; then
                   success "Deploy completed."
                 else
-                  fail "$(cat $WERCKER_REPORT_ARTIFACTS_DIR/deploy.json)"
+                  fail "code=$deployResult result=$(cat $WERCKER_REPORT_ARTIFACTS_DIR/deploy.json)"
                 fi
     after-steps:
       - wercker/slack-notifier@1.2.1:
