@@ -4,6 +4,23 @@
 
 A very simple http based message queue inspired by Amazons SNS.
 
+## Notation
+
+* Each action contains two lists: The request fields and response fields. Please note that the top level of the JSON is always an object.
+* The field names may contain dots to intend sub objects. In case the field denotes an array, a single uppercase letter is used, e.g. `tags.N.key` means the `tags` field contains an array containing more objects with a `key` field inside.
+* The field table may contain a required column. The notation is as followed:
+
+    Value | Meaning
+    ----- | -----------
+    O     | Optional - the field must not be provided
+    R     | Required
+
+* Currently no pagination is supported.
+
+## Authorization
+
+The `msg-php` service authorizes requests over htbasic auth. Your credentials will be provided by the service operator.
+
 ## DataStructures
 
 ### URI
@@ -61,14 +78,34 @@ Generally all actions have the same format. Send a `POST` request to `https://ap
 
 Creates a new queue and returns the created queue.
 
-Query Parameters | Description
----------------- | ----------------------
-tags.N.key       | The key for the tag
-tags.N.value     | The value of the tag
+Query Parameters | Required | Description
+---------------- | -------- | ----------------------
+tags.N.key       | O | The key for the tag. `N` must be replaced with a sequential number starting at 1 with a maximum of 20.
+tags.N.value     | O | The value of the tag.
 
 Response Fields  | Type  | Description
 ---------------- | ----- | ---------------
 queue            | Queue | The queue that was created
+
+Example
+
+```
+POST /msg/msg.php?action=CreateQueue&tags.1.key=name&tags.1.value=example-queue&tags.2.key=env&tags.2.value=production
+Content-Length: 0
+
+200 OK
+Content-Type: application/json
+
+{
+	"queue" : {
+		"id": "msg:queue:1234-56789-01234-5678",
+		"tags": {
+			"name": "example-queue",
+			"env": "production"
+		}
+	}
+}
+```
 
 ### DescribeQueues
 
@@ -76,7 +113,7 @@ DescribeQueues fetches a list of Queues and returns them with their ids and tags
 
 Query Parameters | Description
 ---------------- | ----------------------
-filter.tag:key   | Filters for queues having _key_ as a tag with the given value as the value
+filter.tag:key   | Filters for queues having `key` as a tag with the given value as the value.
 
 Response Fields  | Type    | Description
 ---------------- | ------- | ---------------

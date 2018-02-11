@@ -21,4 +21,4 @@ $keyManager->addBcryptCredentials("username2", "bcrypted-password");
 # Policies
 $accessManager->newPolicy()
 	->description("Everyone has access to everything")
-	->permission('mfs::*');
+	->permission('msg::*');
